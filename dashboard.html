@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaandam Roleplay | Dashboard</title>
+    <link rel="icon" type="image/webp" href="zaandam-rp-logo.webp">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #0f0f1a 50%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(135,206,235,0.08) 0%, transparent 70%);
+            animation: rotate 40s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Navigation */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(135,206,235,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(135,206,235,0.3);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .logo-text {
+            font-size: 1.4em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #87CEEB, #4FC3F7, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #87CEEB, #4FC3F7);
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover::before, .nav-link.active::before {
+            width: 70%;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(135,206,235,0.1);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* Bot Selector */
+        .bot-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .bot-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(135,206,235,0.3);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bot-btn.active {
+            background: linear-gradient(135deg, #87CEEB, #4FC3F7);
+            color: #1a1a2e;
+            border-color: transparent;
+        }
+
+        .bot-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(135,206,235,0.2);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(135,206,235,0.2);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #87CEEB;
+        }
+
+        .stat-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .stat-label {
+            margin-top: 8px;
+            opacity: 0.7;
+            font-size: 0.85em;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(135,206,235,0.2);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 10px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #87CEEB, #4FC3F7);
+            color: #1a1a2e;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .chart-card h3 {
+            margin-bottom: 15px;
+            color: #87CEEB;
+            text-align: center;
+        }
+
+        canvas {
+            max-height: 250px;
+        }
+
+        /* Logs Section */
+        .logs-container {
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-family: monospace;
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .log-time {
+            color: #87CEEB;
+            min-width: 95px;
+        }
+
+        .log-bot {
+            background: rgba(135,206,235,0.2);
+            padding: 2px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+        }
+
+        .log-status-online { color: #00ff00; }
+        .log-status-offline { color: #ff4444; }
+        .log-message { flex: 1; }
+
+        /* Uptime Bars */
+        .uptime-bars {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 12px;
+            height: 180px;
+            margin-top: 20px;
+        }
+
+        .uptime-bar {
+            width: 55px;
+            background: linear-gradient(180deg, #87CEEB, #4FC3F7);
+            border-radius: 10px 10px 0 0;
+            transition: height 0.5s;
+            position: relative;
+        }
+
+        .uptime-bar span {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        /* Embed Sender */
+        .embed-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.85em;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(135,206,235,0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.9em;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #87CEEB;
+        }
+
+        .webhook-input {
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+
+        .preview-embed {
+            background: #2f3136;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #87CEEB;
+            margin-top: 15px;
+        }
+
+        .preview-title {
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .preview-description {
+            color: #dcddde;
+            font-size: 0.85em;
+            white-space: pre-wrap;
+        }
+
+        .preview-footer {
+            margin-top: 10px;
+            font-size: 0.7em;
+            color: #72767d;
+        }
+
+        .buttons-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            background: rgba(135,206,235,0.15);
+            border: 1px solid rgba(135,206,235,0.3);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75em;
+            transition: all 0.3s;
+            color: #fff;
+        }
+
+        .action-btn:hover {
+            background: rgba(135,206,235,0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #87CEEB, #4FC3F7);
+            border: none;
+            color: #1a1a2e;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .status-success {
+            background: rgba(0,255,0,0.1);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        .status-error {
+            background: rgba(255,0,0,0.1);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 40px;
+            font-size: 0.75em;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 900px) {
+            .embed-form { grid-template-columns: 1fr; }
+            .navbar { flex-direction: column; gap: 15px; padding: 15px; }
+            .nav-links { flex-wrap: wrap; justify-content: center; }
+            .container { padding: 20px; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .uptime-bar { width: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <nav class="navbar">
+        <div class="logo">
+            <img src="zaandam-rp-logo.webp" width="256" height="256" alt="Zaandam Roleplay logo" class="logo-img">
+            <span class="logo-text">Zaandam Roleplay</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="dashboard.html" class="nav-link active">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Bot Selector -->
+        <div class="bot-selector">
+            <button class="bot-btn active" data-bot="overheid">🏛️ Overheid Bot</button>
+            <button class="bot-btn" data-bot="onderwereld">🔫 Onderwereld Bot</button>
+            <button class="bot-btn" data-bot="invite">🎉 Invite Bot</button>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="stats-container">
+            <div class="stat-card"><div class="stat-value" id="stat-ping">--</div><div class="stat-label">📡 Ping</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-uptime">--</div><div class="stat-label">⏱️ Uptime</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-status">--</div><div class="stat-label">🔌 Status</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-custom1">--</div><div class="stat-label" id="stat-label1">--</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-custom2">--</div><div class="stat-label" id="stat-label2">--</div></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="stats">📊 Statistieken</button>
+            <button class="tab-btn" data-tab="logs">📝 Logs & Uptime</button>
+            <button class="tab-btn" data-tab="embed">📨 Embed Sender</button>
+        </div>
+
+        <!-- Tab 1: Statistieken -->
+        <div class="tab-content active" id="tab-stats">
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📈 Uptime Geschiedenis (7 dagen)</h3>
+                    <canvas id="uptimeChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>📊 Activiteiten Overzicht</h3>
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+            <div class="export-buttons">
+                <button class="action-btn" onclick="exportToCSV()">📄 Exporteer naar CSV</button>
+                <button class="action-btn" onclick="exportToPDF()">📑 Exporteer naar PDF</button>
+                <button class="action-btn" onclick="refreshData()">🔄 Forceer Refresh</button>
+            </div>
+            <div style="text-align: center; margin-top: 20px; opacity: 0.5; font-size: 0.75em;">
+                Laatst geüpdatet: <span id="update-time">--</span> | Auto-refresh elke 30 seconden
+            </div>
+        </div>
+
+        <!-- Tab 2: Logs & Uptime -->
+        <div class="tab-content" id="tab-logs">
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 20px;">
+                <div class="stat-card"><div class="stat-value" id="log-count">0</div><div class="stat-label">Totaal Logs</div></div>
+                <div class="stat-card"><div class="stat-value" id="log-online">0</div><div class="stat-label">Online Events</div></div>
+                <div class="stat-card"><div class="stat-value" id="log-offline">0</div><div class="stat-label">Offline Events</div></div>
+            </div>
+            <div class="logs-container" id="logs-container"></div>
+            <div class="uptime-bars" id="uptime-bars"></div>
+            <div class="export-buttons" style="margin-top: 20px;">
+                <button class="action-btn" onclick="exportLogsToCSV()">📄 Exporteer Logs</button>
+                <button class="action-btn" onclick="clearLogs()">🗑️ Wis Logs</button>
+            </div>
+        </div>
+
+        <!-- Tab 3: Embed Sender -->
+        <div class="tab-content" id="tab-embed">
+            <div class="embed-form">
+                <div>
+                    <div class="form-group">
+                        <label>🔗 Webhook URL</label>
+                        <input type="text" id="webhook-url" class="webhook-input" placeholder="https://discord.com/api/webhooks/...">
+                        <div class="buttons-row">
+                            <button class="action-btn" onclick="loadPreset('overheid')">🏛️ Overheid Preset</button>
+                            <button class="action-btn" onclick="loadPreset('onderwereld')">🔫 Onderwereld Preset</button>
+                            <button class="action-btn" onclick="loadPreset('invite')">🎉 Invite Preset</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>📌 Titel</label>
+                        <input type="text" id="embed-title" placeholder="Embed titel">
+                    </div>
+                    <div class="form-group">
+                        <label>📝 Beschrijving</label>
+                        <textarea id="embed-description" rows="4" placeholder="Embed beschrijving..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>🎨 Kleur</label>
+                        <select id="embed-color">
+                            <option value="87CEEB">Lichtblauw (#87CEEB)</option>
+                            <option value="00ff00">Groen (#00ff00)</option>
+                            <option value="ff0000">Rood (#ff0000)</option>
+                            <option value="ffa500">Oranje (#ffa500)</option>
+                            <option value="ff69b4">Roze (#ff69b4)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>📎 Footer (optioneel)</label>
+                        <input type="text" id="embed-footer" placeholder="Footer tekst">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>🔘 Embed Knoppen</label>
+                        <div class="buttons-row">
+                            <button class="action-btn" onclick="addButton()">➕ Knop toevoegen</button>
+                            <button class="action-btn" onclick="clearButtons()">🗑️ Alle knoppen wissen</button>
+                        </div>
+                        <div id="buttons-container" style="margin-top: 10px; max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+                    <div class="preview-embed">
+                        <div class="preview-title" id="preview-title">Embed titel</div>
+                        <div class="preview-description" id="preview-description">Embed beschrijving...</div>
+                        <div class="preview-footer" id="preview-footer"></div>
+                    </div>
+                    <div class="buttons-row" style="margin-top: 15px;">
+                        <button class="btn" onclick="sendEmbed()">📤 Verstuur Embed</button>
+                        <button class="btn btn-secondary" onclick="testWebhook()">🔍 Test Webhook</button>
+                        <button class="action-btn" onclick="clearForm()">🗑️ Wis formulier</button>
+                    </div>
+                    <div id="embed-status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>🏛️ Gemeente Zaandam - Bot Status Dashboard | Real-time updates elke 30 seconden</p>
+        <p>© 2026 Zaandam Roleplay | Alle rechten voorbehouden</p>
+    </footer>
+
+    <script>
+        // ========== GLOBALE VARIABELEN ==========
+        let currentBot = 'overheid';
+        let uptimeChart, activityChart;
+        let logs = [];
+        let buttons = [];
+        let uptimeData = [98.5, 99.2, 97.8, 99.5, 100, 98.9, 99.3];
+        let activityData = [45, 62, 38, 71, 55, 48, 52];
+        const days = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
+
+        const botConfig = {
+            overheid: { url: 'https://overheid-bot.onrender.com/health', label1: 'Goedgekeurde VOGs', label2: 'Sollicitaties' },
+            onderwereld: { url: 'https://onderwereld-bot.onrender.com/health', label1: 'Servers', label2: 'Tickets' },
+            invite: { url: 'https://invite-bot-te4o.onrender.com/health', label1: 'Servers', label2: 'Totaal Invites' }
+        };
+
+        const presets = {
+            overheid: {
+                title: '🏛️ Zaandam Overheid',
+                description: 'Welkom bij het Zaandam Overheid Portaal!\n\nGebruik **/vog aanvragen** om een VOG aan te vragen.\nGebruik **/roepnummer mijn** om je roepnummer te bekijken.\nGebruik **/kennistoets** om trainingen te starten.',
+                footer: 'Gemeente Zaandam - Overheid Portaal'
+            },
+            onderwereld: {
+                title: '🔫 Zaandam Onderwereld',
+                description: 'Welkom bij het Zaandam Onderwereld Portaal!\n\nGebruik **/gangstrike** om strikes uit te delen.\nGebruik **/maak_ticket_panel** om een ticket aan te maken.\nGebruik **/reply** om te reageren op suggesties.',
+                footer: 'Gemeente Zaandam - Onderwereld Portaal'
+            },
+            invite: {
+                title: '🎉 Zaandam Invite Actie',
+                description: '**Nodig vrienden uit en verdien exclusieve beloningen!**\n\n🎯 3 invites → `67dance`\n🎯 5 invites → VIP Join Message\n🎯 10 invites → /reviewmij Command\n🎯 15 invites → Buff / Baller (auto)\n🎯 20 invites → VIP Blackmarket',
+                footer: 'Zaandam Roleplay - Invite Tracker'
+            }
+        };
+
+        // ========== BOT STATUS FUNCTIES ==========
+        async function fetchBotData() {
+            const config = botConfig[currentBot];
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const response = await fetch(config.url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) throw new Error('Offline');
+                const data = await response.json();
+                
+                document.getElementById('stat-ping').innerHTML = data.ping || 'N/A';
+                document.getElementById('stat-uptime').innerHTML = data.uptime || 'N/A';
+                document.getElementById('stat-status').innerHTML = '🟢 Online';
+                document.getElementById('stat-label1').innerText = config.label1;
+                document.getElementById('stat-label2').innerText = config.label2;
+                
+                if (currentBot === 'overheid') {
+                    document.getElementById('stat-custom1').innerHTML = data.vogCount || '0';
+                    document.getElementById('stat-custom2').innerHTML = data.solicitatieCount || '0';
+                } else if (currentBot === 'onderwereld') {
+                    document.getElementById('stat-custom1').innerHTML = data.guilds || '1';
+                    document.getElementById('stat-custom2').innerHTML = data.tickets || '0';
+                } else if (currentBot === 'invite') {
+                    document.getElementById('stat-custom1').innerHTML = data.guilds || '1';
+                    document.getElementById('stat-custom2').innerHTML = data.totalInvites || '0';
+                }
+                
+                document.getElementById('update-time').innerText = new Date().toLocaleTimeString('nl-NL');
+            } catch (error) {
+                document.getElementById('stat-ping').innerHTML = 'Offline';
+                document.getElementById('stat-uptime').innerHTML = 'Offline';
+                document.getElementById('stat-status').innerHTML = '🔴 Offline';
+                document.getElementById('stat-custom1').innerHTML = '--';
+                document.getElementById('stat-custom2').innerHTML = '--';
+            }
+        }
+
+        // ========== LOGS FUNCTIES ==========
+        function addLog(bot, status, message) {
+            const log = {
+                id: Date.now(),
+                time: new Date().toLocaleTimeString('nl-NL'),
+                date: new Date().toISOString(),
+                bot: bot,
+                status: status,
+                message: message
+            };
+            logs.unshift(log);
+            if (logs.length > 100) logs.pop();
+            renderLogs();
+            updateLogStats();
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('logs-container');
+            if (!container) return;
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;">📭 Geen logs gevonden</div>';
+                return;
+            }
+
+            container.innerHTML = logs.map(log => `
+                <div class="log-entry">
+                    <span class="log-time">[${log.time}]</span>
+                    <span class="log-bot">${log.bot === 'overheid' ? '🏛️ Overheid' : log.bot === 'onderwereld' ? '🔫 Onderwereld' : '🎉 Invite'}</span>
+                    <span class="${log.status === 'online' ? 'log-status-online' : 'log-status-offline'}">${log.status === 'online' ? '🟢 ONLINE' : '🔴 OFFLINE'}</span>
+                    <span class="log-message">${log.message}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateLogStats() {
+            const onlineCount = logs.filter(l => l.status === 'online').length;
+            const offlineCount = logs.filter(l => l.status === 'offline').length;
+            document.getElementById('log-count').innerHTML = logs.length;
+            document.getElementById('log-online').innerHTML = onlineCount;
+            document.getElementById('log-offline').innerHTML = offlineCount;
+        }
+
+        function clearLogs() {
+            logs = [];
+            renderLogs();
+            updateLogStats();
+        }
+
+        function exportLogsToCSV() {
+            let csv = "Datum,Tijd,Bot,Status,Bericht\n";
+            logs.forEach(log => {
+                csv += `${log.date.split('T')[0]},${log.time},${log.bot},${log.status},${log.message}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `logs-${new Date().toISOString().slice(0,19)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function checkBotStatus() {
+            const bots = [
+                { name: 'overheid', url: 'https://overheid-bot.onrender.com/health' },
+                { name: 'onderwereld', url: 'https://onderwereld-bot.onrender.com/health' },
+                { name: 'invite', url: 'https://invite-bot-te4o.onrender.com/health' }
+            ];
+
+            for (const bot of bots) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    const response = await fetch(bot.url, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        addLog(bot.name, 'online', `Bot online - Ping: ${data.ping}`);
+                    } else {
+                        addLog(bot.name, 'offline', 'Bot reageert niet');
+                    }
+                } catch (error) {
+                    addLog(bot.name, 'offline', `Geen verbinding: ${error.message}`);
+                }
+            }
+        }
+
+        // ========== UPTIME BARS ==========
+        function updateUptimeBars() {
+            const container = document.getElementById('uptime-bars');
+            if (!container) return;
+            container.innerHTML = '';
+            uptimeData.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'uptime-bar';
+                bar.style.height = `${value}px`;
+                bar.innerHTML = `<span>${days[index]}<br>${value}%</span>`;
+                container.appendChild(bar);
+            });
+        }
+
+        // ========== CHARTS ==========
+        function initCharts() {
+            const ctx1 = document.getElementById('uptimeChart')?.getContext('2d');
+            if (ctx1) {
+                uptimeChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: days,
+                        datasets: [{ label: 'Uptime %', data: uptimeData, borderColor: '#87CEEB', backgroundColor: 'rgba(135,206,235,0.1)', fill: true, tension: 0.4 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#fff' } } } }
+                });
+            }
+
+            const ctx2 = document.getElementById('activityChart')?.getContext('2d');
+            if (ctx2) {
+                activityChart = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: days,
+                        datasets: [{ label: 'Activiteit', data: activityData, backgroundColor: '#87CEEB', borderRadius: 8 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#fff' } } } }
+                });
+            }
+        }
+
+        // ========== EMBED SENDER FUNCTIES ==========
+        function updatePreview() {
+            const title = document.getElementById('embed-title')?.value || 'Embed titel';
+            const description = document.getElementById('embed-description')?.value || 'Embed beschrijving...';
+            const footer = document.getElementById('embed-footer')?.value;
+            
+            const previewTitle = document.getElementById('preview-title');
+            const previewDesc = document.getElementById('preview-description');
+            const previewFooter = document.getElementById('preview-footer');
+            
+            if (previewTitle) previewTitle.innerText = title;
+            if (previewDesc) previewDesc.innerText = description;
+            if (previewFooter) previewFooter.innerHTML = footer ? `🔹 ${footer}` : '';
+        }
+
+        function loadPreset(bot) {
+            const preset = presets[bot];
+            if (preset) {
+                const titleInput = document.getElementById('embed-title');
+                const descInput = document.getElementById('embed-description');
+                const footerInput = document.getElementById('embed-footer');
+                if (titleInput) titleInput.value = preset.title;
+                if (descInput) descInput.value = preset.description;
+                if (footerInput) footerInput.value = preset.footer;
+                updatePreview();
+            }
+        }
+
+        function addButton() {
+            const label = prompt('Knop label:', 'Klik hier');
+            if (!label) return;
+            const url = prompt('Knop URL (optioneel):', 'https://');
+            buttons.push({ label, url: url || null });
+            renderButtons();
+        }
+
+        function renderButtons() {
+            const container = document.getElementById('buttons-container');
+            if (!container) return;
+            if (buttons.length === 0) {
+                container.innerHTML = '<div style="text-align:center;opacity:0.5;padding:20px;">Geen knoppen toegevoegd</div>';
+                return;
+            }
+            container.innerHTML = buttons.map((btn, i) => `
+                <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+                    <span style="flex:1; background:rgba(135,206,235,0.1); padding:6px 10px; border-radius:6px; font-size:0.8em;">${btn.label} ${btn.url ? `→ ${btn.url.substring(0, 40)}` : ''}</span>
+                    <button class="action-btn" onclick="removeButton(${i})">❌</button>
+                </div>
+            `).join('');
+        }
+
+        function removeButton(index) {
+            buttons.splice(index, 1);
+            renderButtons();
+        }
+
+        function clearButtons() {
+            buttons = [];
+            renderButtons();
+        }
+
+        function clearForm() {
+            const titleInput = document.getElementById('embed-title');
+            const descInput = document.getElementById('embed-description');
+            const footerInput = document.getElementById('embed-footer');
+            const webhookInput = document.getElementById('webhook-url');
+            if (titleInput) titleInput.value = '';
+            if (descInput) descInput.value = '';
+            if (footerInput) footerInput.value = '';
+            if (webhookInput) webhookInput.value = '';
+            buttons = [];
+            renderButtons();
+            updatePreview();
+        }
+
+        async function testWebhook() {
+            const url = document.getElementById('webhook-url')?.value;
+            if (!url) {
+                showEmbedStatus('❌ Voer een webhook URL in', 'error');
+                return;
+            }
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: '🔍 Webhook test - De verbinding werkt!' })
+                });
+                if (response.ok) {
+                    showEmbedStatus('✅ Webhook test succesvol!', 'success');
+                } else {
+                    showEmbedStatus(`❌ Webhook test mislukt: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showEmbedStatus(`❌ Fout: ${error.message}`, 'error');
+            }
+        }
+
+        async function sendEmbed() {
+            const url = document.getElementById('webhook-url')?.value;
+            if (!url) {
+                showEmbedStatus('❌ Voer een webhook URL in', 'error');
+                return;
+            }
+
+            const title = document.getElementById('embed-title')?.value;
+            const description = document.getElementById('embed-description')?.value;
+            const colorHex = document.getElementById('embed-color')?.value;
+            const footer = document.getElementById('embed-footer')?.value;
+
+            if (!title && !description) {
+                showEmbedStatus('❌ Voer een titel of beschrijving in', 'error');
+                return;
+            }
+
+            const embed = {
+                title: title || null,
+                description: description || null,
+                color: parseInt(colorHex, 16),
+                footer: footer ? { text: footer } : null,
+                timestamp: new Date().toISOString()
+            };
+
+            const components = buttons.length > 0 ? [{
+                type: 1,
+                components: buttons.map(btn => ({
+                    type: 2,
+                    style: 5,
+                    label: btn.label.substring(0, 80),
+                    url: btn.url || 'https://discord.gg',
+                    disabled: false
+                }))
+            }] : [];
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ embeds: [embed], components })
+                });
+                if (response.ok) {
+                    showEmbedStatus('✅ Embed succesvol verzonden!', 'success');
+                } else {
+                    showEmbedStatus(`❌ Verzenden mislukt: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showEmbedStatus(`❌ Fout: ${error.message}`, 'error');
+            }
+        }
+
+        function showEmbedStatus(message, type) {
+            const statusDiv = document.getElementById('embed-status');
+            if (statusDiv) {
+                statusDiv.className = `status-message status-${type}`;
+                statusDiv.innerHTML = message;
+                setTimeout(() => { statusDiv.innerHTML = ''; statusDiv.className = ''; }, 5000);
+            }
+        }
+
+        // ========== EXPORT FUNCTIES ==========
+        function exportToCSV() {
+            let csv = `Bot,Statistiek,Waarde,Tijd\n`;
+            csv += `${currentBot},Ping,${document.getElementById('stat-ping')?.innerText},${new Date().toLocaleString()}\n`;
+            csv += `${currentBot},Uptime,${document.getElementById('stat-uptime')?.innerText},${new Date().toLocaleString()}\n`;
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bot-status-${currentBot}-${new Date().toISOString().slice(0,19)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToPDF() { window.print(); }
+        function refreshData() { fetchBotData(); }
+
+        // ========== EVENT LISTENERS ==========
+        document.querySelectorAll('.bot-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.bot-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentBot = btn.dataset.bot;
+                fetchBotData();
+            });
+        });
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+                const tabId = `tab-${btn.dataset.tab}`;
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.getElementById(tabId)?.classList.add('active');
+            });
+        });
+
+        if (document.getElementById('embed-title')) {
+            document.getElementById('embed-title').addEventListener('input', updatePreview);
+            document.getElementById('embed-description').addEventListener('input', updatePreview);
+            document.getElementById('embed-footer').addEventListener('input', updatePreview);
+        }
+
+        // ========== INITIALISATIE ==========
+        updateUptimeBars();
+        initCharts();
+        fetchBotData();
+        checkBotStatus();
+        
+        setInterval(fetchBotData, 30000);
+        setInterval(checkBotStatus, 60000);
+        setInterval(() => {
+            uptimeData = uptimeData.map(v => Math.min(100, Math.max(85, v + (Math.random() - 0.5) * 2)));
+            activityData = activityData.map(v => Math.min(80, Math.max(20, v + (Math.random() - 0.5) * 10)));
+            if (uptimeChart) { uptimeChart.data.datasets[0].data = uptimeData; uptimeChart.update(); }
+            if (activityChart) { activityChart.data.datasets[0].data = activityData; activityChart.update(); }
+            updateUptimeBars();
+        }, 60000);
+    </script>
+</body>
+</html>
